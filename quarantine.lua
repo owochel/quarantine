@@ -1,6 +1,3 @@
--- test comment
-
-
 -- title:  quarantine, the game
 -- author: shuang cai and Leffin
 -- desc:   survival game. WIP
@@ -63,15 +60,14 @@ function TIC()
 	if state=="title" then
 	
 		title()
-	end
-	if state=="win" then
+	elseif state=="win" then
 		win()
-	end
-	if state=="die" then
+	elseif state=="die" then
 		die()
-	end
-	if state=="start" then
+	elseif state=="start" then
 		start()
+	elseif state="instruction" then
+		instruction()
 	end
 	mx,my,p=mouse()
 	
@@ -108,7 +104,6 @@ function win()
 
 end
 
-
 function title()
 	map(0,18,30,17,0,0,5)
 	spr(256,x,y,5,1,flip,0,1,1)
@@ -137,10 +132,27 @@ function title()
 		print("Instruction", 121,101,12)
 		spr(48,112,98,5)
 		if btnp(2) or btnp(3) then buttonState="start" end
+		if key(50) then
+			x=40
+			y=70
+			state="instruction"
+		end
 	end
 		print("Start",60,100,1)
 		print("Instruction", 120,100,1)
+end
+
+
+nInstruction=0
+arrInstruction={"I am a quarantined person.","I need to make it through the next 14 days", "Boy I hope I can make it without going insane!" }
+function instruction()
+	map(30,0,30,17,0,0,5)
+    map(0,0,30,17,0,0,5)
+	popup(arrInstruction[nInstruction],20)
+	if key(50) then
+		nInstruction=nInstruction+1
 	end
+end
 
 function start()
     map(30,0,30,17,0,0,5)
