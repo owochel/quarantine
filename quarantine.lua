@@ -955,7 +955,7 @@ function bathroom()
 				print("Woah, what am I looking at...",textP.x,textP.y,textP.c)
 				sanity=sanity+10
 			else
-				print("I hate how my eyes are asymmetrical.",textP.x,textP.y,textP.c)
+				print("I hate how I look.",textP.x,textP.y,textP.c)
 				sanity=sanity-10
 			end
 		end
