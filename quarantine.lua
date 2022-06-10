@@ -1,3 +1,6 @@
+
+
+
 -- title:  quarantine, the game
 -- author: shuang cai and Leffin
 -- desc:   survival game. WIP
@@ -8,8 +11,8 @@ x=111
 y=63
 day=1
 
-health=91000
-hunger=41000
+health=51000
+hunger=51000
 sanity=51000
 wealth=100000
 --player info
@@ -17,6 +20,8 @@ wealth=100000
 playerState="none"
 
 state="title"
+
+nInstruction=1
 
 flip=0
 spent=true--one time purchase boolean
@@ -27,11 +32,12 @@ buttonState="start"
 dailyRandom=math.random()
 eventT=0
 shake=10
+reason="none"
 
 
 loop=0
 
-popEvent={n=true,poop=false,insomnia=false,check=false,x=8,y=32}
+popEvent={n=true,poop=false,insomnia=false,shopping=false,zoom=false,check=false,x=8,y=32}
 
 sin,cos,asin,sqrt,rnd,pi=math.sin,math.cos,math.asin,math.sqrt,math.random,math.pi
 
@@ -46,6 +52,7 @@ cloud={}
 function TIC()
 	playerMove()
 	if day>=15 then
+		nDepress()
 		state="win"
 		t=3600 --ingame TIC starts at 6am
 		irl_t=0--ingame time
@@ -56,32 +63,144 @@ function TIC()
 		hunger=51000
 		sanity=51000
 		wealth=100000
+		loop=0
+		eventT=0
+
+		nInstruction=1
+	end
+
+	if state=="die" then
+		die()
 	end
 	if state=="title" then
-	
 		title()
-	elseif state=="win" then
+	end
+	if state=="win" then
 		win()
-	elseif state=="die" then
-		die()
-	elseif state=="start" then
+	end
+	if state=="start" then
 		start()
-	elseif state="instruction" then
+	end
+	if state=="instruction" then
 		instruction()
 	end
-	mx,my,p=mouse()
+	-- mx,my,p=mouse()
 	
-     -- print("x ".. x,5,110,textP.c)
-     -- print("y " .. y,5,120,textP.c)
+ --     print("x ".. x,5,110,textP.c)
+ --     print("y " .. y,5,120,textP.c)
      -- print("mx " .. mx,40,110,textP.c)
      -- print("my " .. my,40,120,textP.c)
-     --print("playerState ".. playerState,5,90,textP)
+     -- print("state ".. state,5,90,textP)
+     -- print("zoom ".. popEvent.zoom,5,90,textP)
+     -- print("nInstruction ".. nInstruction,5,90,textP)
+
+end
+
+
+
+function gameOver(deathState)
+	local s=""
+	nDepress()
+	state="die"
+	t=3600 --ingame TIC starts at 6am
+	irl_t=0--ingame time
+	x=111
+	y=63
+	day=1
+	health=51000
+	hunger=51000
+	sanity=51000
+	wealth=100000
+	loop=0
+	eventT=0
+	reason=deathState
+end
+
+function die()
+	cls(10)
+	winCloud()
+	loop=loop+1/10
+	spr(256,111,90-loop,5,1,flip,0,1,1)
+	spr(277,111,82-loop,5,1,flip,0,1,1)
+	if key(64) then
+		x=40
+		y=70
+		state="title"
+	end
+
+	if reason=="sanity" then
+		print("You have lost your mind in Quarantine.",textP.x,textP.y-loop+100,0)
+		if day>1 then
+			print("The past " .. day .. " days have driven you crazy.",textP.x,textP.y-loop+120,0)
+		else 
+			print("The past 1 day has driven you crazy.",textP.x,textP.y-loop+120,0)
+		end
+		print("This ending is meant to remind you that",textP.x,textP.y-loop+140,0)
+		print("you are always loved and cared for.",textP.x,textP.y-loop+160,0)
+		print("So please take care of youreslf.",textP.x,textP.y-loop+180,0)
+		print("Don't give up. It'll be better in real life",textP.x,textP.y-loop+200,0)
+		print("and next time you play this game.",textP.x,textP.y-loop+220,0)
+	end
+
+	if reason=="health" then
+		print("You got sick.",textP.x,textP.y-loop+100,0)
+		if day>1 then
+			print("You neglected your health in the past " .. day .. " days.",textP.x,textP.y-loop+120,0)
+		else 
+			print("You neglected your health in the past day.",textP.x,textP.y-loop+120,0)
+		end
+		print("This ending is meant to remind you to",textP.x,textP.y-loop+140,0)
+		print("eat some good food and exercise more.",textP.x,textP.y-loop+160,0)
+		print("Too much gaming is also bad.",textP.x,textP.y-loop+180,0)
+		print("Don't give up. It'll be better in real life",textP.x,textP.y-loop+200,0)
+		print("and next time you play this game.",textP.x,textP.y-loop+220,0)
+	end
+	if reason=="hunger&wealth" then
+		print("It is hard to work in Quarantine.",textP.x,textP.y-loop+100,0)
+		if day>1 then
+			print("After " .. day .. " days of chilling,",textP.x,textP.y-loop+120,0)
+		else 
+			print("After 1 day of chilling,",textP.x,textP.y-loop+120,0)
+		end
+		print("you cannot even afford a proper meal.",textP.x,textP.y-loop+140,0)
+		print("Capitalism is the true monster.",textP.x,textP.y-loop+160,0)
+		print("This ending is meant to remind you that",textP.x,textP.y-loop+180,0)
+		print("don't give up. It'll be better in real life",textP.x,textP.y-loop+200,0)
+		print("and next time you play this game.",textP.x,textP.y-loop+220,0)
+	end
+
+	if reason=="hunger" then
+		print("You starved youreslf.",textP.x,textP.y-loop+100,0)
+		if day>1 then
+			print("You neglected to eat in the past " .. day .. " days.",textP.x,textP.y-loop+120,0)
+		else 
+			print("You didn't eat at all the 1st day.",textP.x,textP.y-loop+120,0)
+		end
+		print("You have enough money though.",textP.x,textP.y-loop+140,0)
+		print("So you probably just forgot.",textP.x,textP.y-loop+160,0)
+		print("This ending is meant to remind you that",textP.x,textP.y-loop+180,0)
+		print("don't forget to eat & take care",textP.x,textP.y-loop+200,0)
+		print("and next time you play this game.",textP.x,textP.y-loop+220,0)
+	end
+
+
+	if loop > 200 then
+		print("Press SHIFT to restart",65,85,12)
+		print("Press SHIFT to restart",64,84,0)
+		print("Quarantine",65,39,12,false,2,false)
+		print("Quarantine",64,38,0,false,2,false)
+	end
 end
 
 function win()
-	cls(9)
+	cls(10)
 	winCloud()
 	loop=loop+1/10
+	if key(64) then
+			x=40
+			y=70
+			state="title"
+	end
 	print("14 days of Quarantine has passed.",textP.x,textP.y-loop+100,0)
 	print("You are released back to the society.",textP.x,textP.y-loop+120,0)
 	print("Whether it has been pleasant or not,",textP.x,textP.y-loop+140,0)
@@ -89,20 +208,14 @@ function win()
 	print("Thank you for that.",textP.x,textP.y-loop+180,0)
 
 	if loop > 190 then
-	print("Press ENTER to restart",65,85,12)
-	print("Press ENTER to restart",64,84,0)
+	print("Press SHIFT to restart",65,85,12)
+	print("Press SHIFT to restart",64,84,0)
 	print("Quarantine",65,39,12,false,2,false)
 	print("Quarantine",64,38,0,false,2,false)
-		if key(50) then
-			x=40
-			y=70
-			state="start"
-		end
 
 	end
-
-
 end
+
 
 function title()
 	map(0,18,30,17,0,0,5)
@@ -114,9 +227,38 @@ function title()
 	if x>=229 then x =229 end
 	if y>=124 then y=124 end
 	if y<=3 then y=3 end
+
+	if x>56 and x<58 then
+		if y>77 and y <90 then
+			x = 56
+		end
+	end
+	if x>175 and x<177 then
+		if y>77 and y <90 then
+			x = 177
+		end
+	end
+	if y>73 and y<75 then
+		if x>57 and x <177 then
+			y = 73
+		end
+	end
+	if y>90 and y<92 then
+		if x>57 and x <177 then
+			y = 92
+		end
+	end
+
+
 	--print( text [x=0 y=0] [color=12] [fixed=false] [scale=1] [smallfont=false]) -> text width
-	print("Press ENTER to enter",65,85,12)
-	print("Quarantine",65,39,11,false,2,false)
+	local b={12,2}
+	local blink=1+loop%80//40
+	loop=loop+1
+	-- print(blink,5,5)
+	--make the color the same as background for blinking
+	print("Press ENTER to enter",65,85,b[blink])
+
+	print("Quarantine",65,39,12,false,2,false)
 	print("Quarantine",64,38,1,false,2,false)
 	if buttonState=="start" then
 		print("Start",61,101,12)
@@ -140,19 +282,63 @@ function title()
 	end
 		print("Start",60,100,1)
 		print("Instruction", 120,100,1)
-end
+	end
 
 
-nInstruction=0
-arrInstruction={"I am a quarantined person.","I need to make it through the next 14 days", "Boy I hope I can make it without going insane!" }
 function instruction()
+	local arrInstruction={}
 	map(30,0,30,17,0,0,5)
     map(0,0,30,17,0,0,5)
-	popup(arrInstruction[nInstruction],20)
-	if key(50) then
+    spr(256,x,y,5,1,flip,0,1,1)
+    nightcloud()
+    arrInstruction[1]="I'm quarantined here for 14 days.."
+	arrInstruction[2]="I should keep track of.."
+	arrInstruction[3]="all aspects of my life.."
+	arrInstruction[4]="by doing things properly.."
+	arrInstruction[7]="The left is event notifications."
+   	arrInstruction[8]="The right is status metrics."
+    x=40
+	y=70
+	print("day" .. " " .. day,textP.x+190,textP.y,textP.c)
+	if btnp(3) then
 		nInstruction=nInstruction+1
 	end
+	if btnp(2) then
+		nInstruction=nInstruction-1
+	end
+	if key(64) then
+			state="title"
+	end
+	if nInstruction<1 then nInstruction=9 end
+	if nInstruction>10 then nInstruction=1 end
+
+    if nInstruction<5 then
+    	popup(arrInstruction[nInstruction],20)
+    	if nInstruction<3 then
+    		print("Press ARROW keys to see instructions.",textP.x,122,textP.c)
+  		end
+	end
+	if nInstruction==5 then
+		map(60,10,23,2,0,0,5)
+		print("Here is the story of my life.",textP.x,textP.y,textP.c)
+	end
+	if nInstruction==6 then
+		map(60,12,30,3,0,112,5)
+		print("This will tell you what to do.",textP.x,122,textP.c)
+	end
+	if nInstruction==7 then
+		map(60,0,4,10,0,24,5)
+		popup(arrInstruction[nInstruction],20)
+	end
+	if nInstruction==8 then
+		map(64,0,13,10,136,24,5)    	
+		popup(arrInstruction[nInstruction],20)
+	end
+	if nInstruction>=9 then
+		print("Press SHIFT to go back to title page.",textP.x,122,textP.c)
+	end
 end
+
 
 function start()
     map(30,0,30,17,0,0,5)
@@ -182,7 +368,14 @@ function start()
 	elseif playerState=="poop" then
 		toilet()
 		eventT=eventT+1
+	elseif playerState=="shopping" then
+		openBox()
+		eventT=eventT+1
+	elseif playerState=="meeting" then
+		meeting()
+		eventT=eventT+1
 	end
+
 
 	if popEvent.poop==true then
 		poop()
@@ -196,23 +389,33 @@ function start()
 		eventT=eventT+1
 	end
 
-	if sanity<40000 then
+	if popEvent.shopping==true then
+		shopping()
+	end
+	if popEvent.zoom==true then
+		zoom()
+	end
+
+
+	if sanity<35000 then
 		depress()
 		print("day" .. " " .. day,textP.x+190,textP.y,textP.c)
 	else
 		nDepress()
 	end
-	if hunger<40000 and hunger> 35000 then
-		popup("Food?",20)
-	end
-	if hunger<30000 and hunger> 25000 then
-		popup("Some food maybe?",20)
-	end
-	if hunger<20000 then
-		hungry()
-		sanity=sanity-10
-		health=health-20
-        popup("I'm starving!",20)
+	if playerState~="cook" then
+		if hunger<40000 and hunger> 35000 then
+			popup("Food?",20)
+		end
+		if hunger<30000 and hunger> 25000 then
+			popup("Some food maybe?",20)
+		end
+		if hunger<20000 then
+			hungry()
+			sanity=sanity-10
+			health=health-20
+	        popup("I'm starving!",20)
+		end
 	end
 
 	if (health>100000) then
@@ -229,20 +432,16 @@ function start()
 		gameOver("sanity")
 	end
 	if (health<0) then
-		gameOver("hunger")
+		gameOver("health")
 	end
 	if hunger<0 and wealth<9000 then
-		gameOver("health&wealth")
+		gameOver("hunger&wealth")
 	end
 	if hunger<0 and wealth>=9000 then
 		gameOver("hunger")
 
 	end
-	
-
-
     playerVal()
-
    	room()
 end
 
@@ -269,6 +468,7 @@ function TimeOfDay()
 end
 
 insomniaLikely=0.2
+shoppingLikely=0.5
 
 
 function time()
@@ -286,10 +486,13 @@ function time()
         dailyRandom=math.random()
     end
     tim=string.sub(100+math.floor(irl_t/60), 2,3) .. ":" .. string.sub(100+math.floor(irl_t%60),2,3)
-    print("Time  " .. tim,158,81,textP.c,true)
+    print("Time  " .. tim,158,87,textP.c,true)
     print("day" .. " " .. day,textP.x+190,textP.y,textP.c)
     if irl_t/60>=7 and irl_t/60<=7.5 then
     	popEvent.poop=true
+    end
+    if irl_t/60>=13 and irl_t/60<=13.5 then
+    	popEvent.zoom=true
     end
     if day==7 then 
     	if irl_t/60>=7 and irl_t/60<=7.5 then
@@ -300,6 +503,11 @@ function time()
     	popEvent.insomnia=true
     else
     	popEvent.insomnia=false
+    end
+    if dailyRandom<shoppingLikely then
+    	popEvent.shopping=true
+    else
+    	popEvent.shopping=false
     end
 
 
@@ -313,21 +521,21 @@ function time()
     end
     --clock animation
     if ((irl_t/60)>=0 and (irl_t/60)<2) or ((irl_t/60)>=12 and (irl_t/60)<14)  then
-    	spr(262,148,79,5)
+    	spr(262,148,85,5)
     elseif ((irl_t/60)>=2 and (irl_t/60)<3) or ((irl_t/60)>=14 and (irl_t/60)<15) then
-    	spr(278,148,79,5)
+    	spr(278,148,85,5)
     elseif ((irl_t/60)>=3 and (irl_t/60)<5) or ((irl_t/60)>=15 and (irl_t/60)<17) then
-    	spr(294,148,79,5)
+    	spr(294,148,85,5)
     elseif ((irl_t/60)>=5 and (irl_t/60)<6) or ((irl_t/60)>=17 and (irl_t/60)<18) then
-    	spr(263,148,79,5)
+    	spr(263,148,85,5)
     elseif ((irl_t/60)>=6 and (irl_t/60)<8) or ((irl_t/60)>=18 and (irl_t/60)<20) then
-    	spr(279,148,79,5)
+    	spr(279,148,85,5)
     elseif ((irl_t/60)>=8 and (irl_t/60)<9) or ((irl_t/60)>=20 and (irl_t/60)<21) then
-    	spr(295,148,79,5)
+    	spr(295,148,85,5)
     elseif ((irl_t/60)>=9 and (irl_t/60)<11) or ((irl_t/60)>=21 and (irl_t/60)<23) then
-    	spr(264,148,79,5)
+    	spr(264,148,85,5)
     elseif ((irl_t/60)>=11 and (irl_t/60)<12) or ((irl_t/60)>=23 and (irl_t/60)<=24) then
-    	spr(280,148,79,5)
+    	spr(280,148,85,5)
     end
 end
 
@@ -340,27 +548,26 @@ function playerVal()
 		spr(290,147,32,5)
 	end
 	if sanity>50000 then
-		spr(259,147,44,5)
+		spr(259,147,46,5)
 	elseif sanity<=50000 and sanity>10000 then
-		spr(275,147,44,5)
+		spr(275,147,46,5)
 	elseif sanity<=10000 then
-		spr(291,147,44,5)
+		spr(291,147,46,5)
 		popup("I'm so sad...",20)
 	end
 	if hunger>50000 then
-		spr(260,147,56,5)
+		spr(260,147,59,5)
 	elseif hunger<=50000 and hunger> 10000 then
-		spr(276,147,56,5)
+		spr(276,147,59,5)
 	elseif hunger<=10000 then
-		spr(292,147,56,5)
+		spr(292,147,59,5)
 
 	end
-
-	spr(261,147,68,5)
+	spr(261,147,73,5)
 	print("Health " .. health//1000,158,34,textP.c,true)
-	print("Sanity " .. sanity//1000,158,46,textP.c,true)
-	print("Hunger " .. hunger//1000,158,58,textP.c,true)
-	print("Wealth " .. wealth//1000,158,70,textP.c,true)
+	print("Sanity " .. sanity//1000,158,48,textP.c,true)
+	print("Hunger " .. hunger//1000,158,61,textP.c,true)
+	print("Wealth " .. wealth//1000,158,74,textP.c,true)
 end
 
 function palSwap(c0,c1)
@@ -389,15 +596,15 @@ function popup(msg, h)
 	-- print(x+8+textW,100,110,textP.c)
 	-- print(x-textW,100,115,textP.c)
 
-    if x+8+textW>= 148  then
-            rect (x-textW, y-22,textW, h, 11)
+    if x+8+textW>= 300  then
+            rect (x-textW, y-22,textW,h, 11)
             print(msg, x-textW+ 3, y-12,12)
     elseif x-textW<=25 then
             rect (x+8, y-22,textW, h, 11)
-            print(msg, x+11, y-12,12)
+            print(msg, x+11, y-12,12,false)
     else 
     	rect (x+8, y-22,textW, h, 11)
-    	print(msg, x+11, y-12,12)
+            print(msg, x+11, y-12,12,false)
     end
 end
 
@@ -414,14 +621,6 @@ function nDepress()
 end
 
 
-function doormat()
-	if x<95 and x>73  then
-	if y>=79 then print("Not yet. Soon..",textP.x,textP.y,textP.c) end
-		if y<74 then y=74 end
-		if y>79 then y=79	end
-	end
-end
-
 function sleep()
 	print("z",43-t%300//150*2,45-t%500//100*2,textP.c)
 	spr(272,40,40,5,1,0,0,2,2)    
@@ -431,7 +630,8 @@ function sleep()
     workLikely=workLikely-0.000001
 
     if TimeOfDay()=="night" then
-    	sanity=sanity+10
+    	sanity=sanity+15
+    	health=health+15
     else
     	sanity=sanity+5
     	insomniaLikely=insomniaLikely+0.001
@@ -459,8 +659,8 @@ function work()
 		playerState="none"
 	end
 	workLikely=workLikely+0.00001
+	shoppingLikely=shoppingLikely+0.0001
 end
-
 
 
 function exercise()
@@ -503,6 +703,7 @@ function cook()
 	if eventT==300 then
 		while spent do
 			wealth=wealth-9000
+			shoppingLikely=shoppingLikely-0.0005
 			hunger=hunger+30000
 			spent=false
 		end
@@ -535,20 +736,26 @@ function shower()
 	end
 end
 
-function gameOver(deathState)
-	print("Game Over",textP.x,textP.y,textP.c)
-	print("Press any key to restart",textP.x,textP.y+12,textP.c)
 
-	if key(64) then
-		state="title"
-
+function openBox()
+	spr(372+t%60//30*2,80,73,5,1,false,0,2,2)
+	print("I've spent the money.",textP.x,textP.y,textP.c) 
+	print("Opening package. It'll take a while.",textP.x,122,textP.c)
+	if eventT==200 then
+		sanity=sanity+5000
+		wealth=wealth-5000
+		shoppingLikely=shoppingLikely-0.3
 	end
+	if eventT>200 then
+		playerState="none"
+		popEvent.shopping=false
+		eventT=0
+	end	
 end
 
-function game()
-	-- print(eventT,5,50,textP.c)
 
-	
+function game()
+	-- print(eventT,5,50,textP.c)	
 	spr(368+t%60//30*2,48,72,5,1,0,0,2,4)
 	t=t+3 
 	health=health-1
@@ -586,30 +793,25 @@ function check()
 		popup("A stimulus check!",20)
 	else 
 		wealth=wealth+50000
+		sanity=sanity+10000
+		shoppingLikely=shoppingLikely+0.4
 		popEvent.check=false
 	end
 end
 
 function insomnia()
-	spr(312+t%600//300*2,popEvent.x,popEvent.y+18,5,1,0,0,2,2)
+	spr(312+t%600//300*2,popEvent.x,popEvent.y+16,5,1,0,0,2,2)
 end
 
-function toilet()
-	print("Phbbbbt...",textP.x,textP.y,textP.c) 
-	print("Press ENTER to poop. It'll take a while.",textP.x,122,textP.c)
-	spr(340,112,88,5,1,0,0,2,2)
-	if eventT==200 then
-		health=health+5000
-	end
-
-	if eventT>200 then
-		playerState="none"
-		popEvent.poop=false
-		eventT=0
-	end	
+function shopping()
+	spr(342+t%800//400*2,popEvent.x,popEvent.y+32,5,1,0,0,2,2)
 end
 
-
+function zoom()
+	spr(346+t%300//150*2,popEvent.x,popEvent.y+48,5,1,0,0,2,2)
+	sanity=sanity-1
+	wealth=wealth-1
+end
 
 function exerciseAct()
 	local text = "Train my mind or body?"
@@ -623,11 +825,43 @@ function exerciseAct()
 	end
 end
 
+function toilet()
+	print("Phbbbbt...",textP.x,textP.y,textP.c) 
+	print("Press ENTER to poop. It'll take a while.",textP.x,122,textP.c)
+	spr(340,112,88,5,1,0,0,2,2)
+	if eventT==200 then
+		health=health+5000
+		sanity=sanity+5000
+	end
+	if eventT>200 then
+		playerState="none"
+		popEvent.poop=false
+		eventT=0
+	end	
+end
+
+function meeting()
+	print("This meeting...",textP.x,textP.y,textP.c) 
+	print("In meeting. It'll take a while.",textP.x,122,textP.c)
+	spr(304+t%60//30*2,64,40,5,1,0,0,2,2)
+	sanity=sanity-1
+	if eventT==300 then
+		wealth=wealth+5000
+		sanity=sanity+2000
+	end
+	if eventT>300 then
+		playerState="none"
+		popEvent.zoom=false
+		eventT=0
+	end	
+end
+
 
 function topAct()
 	local slp = "Wish me a good dream..."
 	local wrk = "Hardworking. They said..."
 	local cok = "I could always eat something."
+	local met= "I gotta attend this meeting."
 	if y<49  then
 		if x< 50 then 
 			if popEvent.insomnia==false then
@@ -644,11 +878,21 @@ function topAct()
 
 		end
 		if x>62 and x<73 then 
-			print("Press ENTER to work. SHIFT to stop.",textP.x,122,textP.c)
-			if key(50) then
-				playerState="work"
-			elseif playerState=="none" then
-				print(wrk,textP.x,textP.y,textP.c) 
+			if popEvent.zoom==false then
+				print("Press ENTER to work. SHIFT to stop.",textP.x,122,textP.c)
+				if key(50) then
+					playerState="work"
+				elseif playerState=="none" then
+					print(wrk,textP.x,textP.y,textP.c) 
+				end
+			else
+
+				if key(50) then
+					playerState="meeting"
+				elseif playerState=="none" then
+					print(met,textP.x,textP.y,textP.c) 
+					print("Press ENTER to attend meeting..",textP.x,122,textP.c)
+				end
 			end
 		end
 		if x>=95 then 
@@ -664,12 +908,62 @@ function topAct()
 	end
 end
 
+
+function doormat()
+	
+	if x<95 and x>73  then
+		if y<74 then y=74 end
+		if y>79 then y=79 end
+		if y>=79 then 
+			if playerState =="none" then
+				if  popEvent.shopping==false and day>6 then
+					print("More than half done.",textP.x,textP.y,textP.c) 
+				end
+				if  popEvent.shopping==false and day<=6 then
+					print("Not yet. Soon..",textP.x,textP.y,textP.c) 
+					print("14 days of Quarantine is required.",textP.x,122,textP.c)
+				end
+				if popEvent.shopping==true then
+					if dailyRandom>0.5 then
+						print("When did I buy this?",textP.x,textP.y,textP.c)
+						print("Press ENTER to pick up package.",textP.x,122,textP.c)
+					else
+						print("Ah! I've been waiting for this.",textP.x,textP.y,textP.c)
+						print("Press ENTER to pick up package.",textP.x,122,textP.c)
+					end
+					if key(50) then
+						playerState="shopping"
+					end
+
+				end
+			end
+		end 
+	end
+end
+
+
 function bathroom()
 	local shwr = "A hotbath would help.."
 	local t="I can hear my bowel movement."
 	local nt="Hm, I'm not feeling the poop."
-	local mirror="I look ok."
-	if x<=112 and x>=110 and y<=76 and  y>60 then print(mirror,textP.x,textP.y,textP.c) end
+	if x<=112 and x>=110 and y<=76 and  y>60 then
+		eventT=eventT+1
+		if eventT<150 then
+			print("I look ok.",textP.x,textP.y,textP.c)
+		else 
+			if dailyRandom>0.5 then
+				print("Woah, what am I looking at...",textP.x,textP.y,textP.c)
+				sanity=sanity+10
+			else
+				print("I hate how my eyes are asymmetrical.",textP.x,textP.y,textP.c)
+				sanity=sanity-10
+			end
+		end
+	elseif playerState=="None" then
+		eventT=0
+	end
+
+
 	if x>=112 and y>=95 then
 		if playerState=="none" then
 			if popEvent.poop==true then 
@@ -871,4 +1165,3 @@ function winCloud()
    end   
 
 end
-
