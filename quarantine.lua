@@ -300,7 +300,7 @@ function instruction()
 	arrInstruction[9]="This icon means you need to poop."
 	arrInstruction[10]="This means you are insomniacs."
 	arrInstruction[11]="This means your packages arrived."
-	arrInstruction[12]="This means you have a work meeting."   	
+	arrInstruction[12]="This means a conference call."   	 	
     x=40
 	y=70
 	print("day" .. " " .. day,textP.x+190,textP.y,textP.c)
@@ -363,6 +363,7 @@ function instruction()
 	end
 
 	if nInstruction>12 then
+		popup("That's it.",20)
 		print("Press SHIFT to go back to title page.",textP.x,122,textP.c)
 	end
 end
@@ -520,7 +521,7 @@ function time()
     if irl_t/60>=7 and irl_t/60<=7.5 then
     	popEvent.poop=true
     end
-    if irl_t/60>=13 and irl_t/60<=13.5 then
+    if irl_t/60>=13 and irl_t/60<=13.5 and playerState~="work" then
     	popEvent.zoom=true
     end
     if day==7 then 
@@ -625,15 +626,15 @@ function popup(msg, h)
 	-- print(x+8+textW,100,110,textP.c)
 	-- print(x-textW,100,115,textP.c)
     if x+8+textW>= 300  then
-    	rect (x-textW-1, y-23,textW+2,h+2, 12)
+    	rect (x-textW-2, y-24,textW+4,h+4, 12)
         rect (x-textW, y-22,textW,h, 11)
         print(msg, x-textW+ 3, y-12,12)
     elseif x-textW<=25 then
-    	rect (x+7, y-23,textW+2,h+2, 12)
+    	rect (x+6, y-24,textW+4,h+4, 12)
    	    rect (x+8, y-22,textW, h, 11)
         print(msg, x+11, y-12,12,false)
     else 
-    	rect (x+7, y-23,textW+2,h+2, 12)
+    	rect (x+6, y-24,textW+4,h+4, 12)
     	rect (x+8, y-22,textW, h, 11)
         print(msg, x+11, y-12,12,false)
     end
