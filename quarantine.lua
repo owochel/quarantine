@@ -295,8 +295,12 @@ function instruction()
 	arrInstruction[2]="I should keep track of.."
 	arrInstruction[3]="all aspects of my life.."
 	arrInstruction[4]="by doing things properly.."
-	arrInstruction[7]="The left is event notifications."
-   	arrInstruction[8]="The right is status metrics."
+	arrInstruction[7]="The right is status metrics."
+	arrInstruction[8]="The left is event notifications."
+	arrInstruction[9]="This icon means you need to poop."
+	arrInstruction[10]="This means you are insomniacs."
+	arrInstruction[11]="This means your packages arrived."
+	arrInstruction[12]="This means you have a work meeting."   	
     x=40
 	y=70
 	print("day" .. " " .. day,textP.x+190,textP.y,textP.c)
@@ -310,7 +314,7 @@ function instruction()
 			state="title"
 	end
 	if nInstruction<1 then nInstruction=9 end
-	if nInstruction>10 then nInstruction=1 end
+	if nInstruction>13 then nInstruction=1 end
 
     if nInstruction<5 then
     	popup(arrInstruction[nInstruction],20)
@@ -327,14 +331,38 @@ function instruction()
 		print("This will tell you what to do.",textP.x,122,textP.c)
 	end
 	if nInstruction==7 then
-		map(60,0,4,10,0,24,5)
-		popup(arrInstruction[nInstruction],20)
-	end
-	if nInstruction==8 then
 		map(64,0,13,10,136,24,5)    	
 		popup(arrInstruction[nInstruction],20)
 	end
-	if nInstruction>=9 then
+	if nInstruction==8 then
+		map(60,0,4,10,0,24,5)
+		popup(arrInstruction[nInstruction],20)
+	end
+	if nInstruction==9 then
+		spr(316,popEvent.x,popEvent.y,5,1,0,0,2,2)
+		spr(308+t%60//30*2,popEvent.x,popEvent.y,5,1,0,0,2,2)
+		popup(arrInstruction[nInstruction],20)
+	end
+
+	if nInstruction==10 then
+		spr(316,popEvent.x,popEvent.y+16,5,1,0,0,2,2)
+		spr(312+t%600//300*2,popEvent.x,popEvent.y+16,5,1,0,0,2,2)
+		popup(arrInstruction[nInstruction],20)
+	end
+
+	if nInstruction==11 then
+		spr(316,popEvent.x,popEvent.y+32,5,1,0,0,2,2)
+		spr(342+t%800//400*2,popEvent.x,popEvent.y+32,5,1,0,0,2,2)
+		popup(arrInstruction[nInstruction],20)
+	end
+	if nInstruction==12 then
+		spr(316,popEvent.x,popEvent.y+48,5,1,0,0,2,2)
+
+		spr(346+t%300//150*2,popEvent.x,popEvent.y+48,5,1,0,0,2,2)
+		popup(arrInstruction[nInstruction],20)
+	end
+
+	if nInstruction>12 then
 		print("Press SHIFT to go back to title page.",textP.x,122,textP.c)
 	end
 end
@@ -347,6 +375,7 @@ function start()
     -- print(workLikely,5,40,textP.c)
  
     time()
+    playerVal()
     if playerState=="none" then
 		spr(256,x,y,5,1,flip,0,1,1)
 	elseif playerState =="sleep" then
@@ -441,7 +470,7 @@ function start()
 		gameOver("hunger")
 
 	end
-    playerVal()
+
    	room()
 end
 
@@ -595,16 +624,18 @@ function popup(msg, h)
     textW=getTW(msg)+ 6
 	-- print(x+8+textW,100,110,textP.c)
 	-- print(x-textW,100,115,textP.c)
-
     if x+8+textW>= 300  then
-            rect (x-textW, y-22,textW,h, 11)
-            print(msg, x-textW+ 3, y-12,12)
+    	rect (x-textW-1, y-23,textW+2,h+2, 12)
+        rect (x-textW, y-22,textW,h, 11)
+        print(msg, x-textW+ 3, y-12,12)
     elseif x-textW<=25 then
-            rect (x+8, y-22,textW, h, 11)
-            print(msg, x+11, y-12,12,false)
+    	rect (x+7, y-23,textW+2,h+2, 12)
+   	    rect (x+8, y-22,textW, h, 11)
+        print(msg, x+11, y-12,12,false)
     else 
+    	rect (x+7, y-23,textW+2,h+2, 12)
     	rect (x+8, y-22,textW, h, 11)
-            print(msg, x+11, y-12,12,false)
+        print(msg, x+11, y-12,12,false)
     end
 end
 
@@ -628,13 +659,15 @@ function sleep()
     hunger=hunger-3
     t=t+15
     workLikely=workLikely-0.000001
-
     if TimeOfDay()=="night" then
-    	sanity=sanity+15
+    	sanity=sanity+10
     	health=health+15
     else
-    	sanity=sanity+5
+    	sanity=sanity+2
     	insomniaLikely=insomniaLikely+0.001
+    end
+    if popEvent.insomnia==true then
+    	playerState="none"
     end
 	if key(64) then
 		playerState="none"
@@ -877,6 +910,7 @@ function topAct()
 			end
 
 		end
+
 		if x>62 and x<73 then 
 			if popEvent.zoom==false then
 				print("Press ENTER to work. SHIFT to stop.",textP.x,122,textP.c)
