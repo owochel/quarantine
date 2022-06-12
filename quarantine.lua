@@ -10,6 +10,7 @@ irl_t=0--ingame time
 x=111
 y=63
 day=1
+sprN=256
 
 health=51000
 hunger=51000
@@ -219,7 +220,7 @@ end
 
 function title()
 	map(0,18,30,17,0,0,5)
-	spr(256,x,y,5,1,flip,0,1,1)
+	spr(sprN,x,y,5,1,flip,0,1,1)
 	line(x,y+8,x+7,y+8,11)
 	line(x+1,y+9,x+6,y+9,11)
 
@@ -378,7 +379,7 @@ function start()
     time()
     playerVal()
     if playerState=="none" then
-		spr(256,x,y,5,1,flip,0,1,1)
+		spr(sprN,x,y,5,1,flip,0,1,1)
 	elseif playerState =="sleep" then
 		sleep()
 	elseif playerState=="work" then
@@ -477,8 +478,9 @@ end
 
 function playerMove()
 	if playerState=="none" then
-		if btn(0) then y=y-1 end
-		if btn(1) then y=y+1 end
+		sprN=256
+		if btn(0) then y=y-1 sprN=257 end
+		if btn(1) then y=y+1 sprN=256 end
 		if btn(2) then x=x-1 flip=1 end
 		if btn(3) then x=x+1 flip=0  end
 	end
