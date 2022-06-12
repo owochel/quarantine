@@ -845,8 +845,8 @@ end
 
 function zoom()
 	spr(346+t%300//150*2,popEvent.x,popEvent.y+48,5,1,0,0,2,2)
-	sanity=sanity-1
-	wealth=wealth-1
+	sanity=sanity-2
+	wealth=wealth-12
 end
 
 function exerciseAct()
